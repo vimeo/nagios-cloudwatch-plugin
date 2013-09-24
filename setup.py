@@ -11,4 +11,6 @@ setup(name='nagios-cloudwatch-plugin',
         keywords="nagios cloudwatch plugin",
         url='https://github.com/FastSociety/nagios-cloudwatch-plugin',
         install_requires=["argparse","nagiosplugin","boto"],
+        
+        scripts=["check_cloudwatch.py"]
 )
