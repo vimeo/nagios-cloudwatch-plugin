@@ -31,35 +31,16 @@ class CloudWatchMetric(nagiosplugin.Resource):
 class CloudWatchRatioMetric(nagiosplugin.Resource):
 
     def __init__(self, dividend_namespace, dividend_metric, dividend_dimension, dividend_statistic, period, lag, divisor_namespace, divisor_metric, divisor_dimension, divisor_statistic):
-        self.dividend_namespace=dividend_namespace
-        self.dividend_metric=dividend_metric
-        self.dividend_dimension=dividend_dimension
-        self.dividend_statistic=dividend_statistic
-        self.divisor_namespace=divisor_namespace
-        self.divisor_metric=divisor_metric
-        self.divisor_dimension=divisor_dimension
-        self.divisor_statistic=divisor_statistic
-        self.period = int(period)
-        self.lag = int(lag)
+        self.dividend_metric = CloudWatchMetric(dividend_namespace, dividend_metric, dividend_dimension, dividend_statistic, int(period), int(lag))
+        self.divisor_metric  = CloudWatchMetric(divisor_namespace, divisor_metric, divisor_dimension, divisor_statistic, int(period), int(lag))
 
     def probe(self):
-        cw = boto.connect_cloudwatch()
-        start_time = datetime.utcnow() - timedelta(seconds=self.period) - timedelta(seconds=self.lag)
-        end_time = datetime.utcnow()
-        dividend_stats = cw.get_metric_statistics(self.period, start_time, end_time,
-                                                  self.dividend_metric, self.dividend_namespace, self.dividend_statistic, self.dividend_dimension)
-        divisor_stats = cw.get_metric_statistics(self.period, start_time, end_time,
-                                                  self.divisor_metric, self.divisor_namespace, self.divisor_statistic, self.divisor_dimension)
-        if len(dividend_stats) == 0 or len(divisor_stats) == 0:
-            return []
+        dividend = self.dividend_metric.probe()[0]
+        divisor  = self.divisor_metric.probe()[0]
 
-        dividend_stat = dividend_stats[0]
-        divisor_stat = divisor_stats[0]
+        ratio_unit = '%s / %s' % ( dividend.uom, divisor.uom)
 
-        ratio = dividend_stat[self.dividend_statistic] / divisor_stat[self.divisor_statistic]
-        ratio_unit = '%s / %s' % ( dividend_stat['Unit'], divisor_stat['Unit'])
-
-        return [nagiosplugin.Metric('cloudwatchmetric', ratio, ratio_unit)]
+        return [nagiosplugin.Metric('cloudwatchmetric', dividend.value / divisor.value, ratio_unit)]
 
 class CloudWatchMetricSummary(nagiosplugin.Summary):
 
