@@ -7,7 +7,7 @@ class CloudWatchMetric(nagiosplugin.Resource):
 
     def __init__(self, namespace, metric, dimensions, statistic):
         self.namespace = namespace
-        self.metric=metric
+        self.metric = metric
         self.dimensions = dimensions
         self.statistic = statistic
 
@@ -29,7 +29,7 @@ class CloudWatchMetricSummary(nagiosplugin.Summary):
 
     def __init__(self, namespace, metric, dimensions, statistic):
         self.namespace = namespace
-        self.metric=metric
+        self.metric = metric
         self.dimensions = dimensions
         self.statistic = statistic
 
