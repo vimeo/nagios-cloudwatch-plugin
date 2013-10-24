@@ -36,7 +36,7 @@ class CloudWatchRatioMetric(nagiosplugin.Resource):
 
     def probe(self):
         dividend = self.dividend_metric.probe()[0]
-        divisor  = self.divisor_metric.probe()[0]
+        divisor = self.divisor_metric.probe()[0]
 
         ratio_unit = '%s / %s' % ( dividend.uom, divisor.uom)
 
