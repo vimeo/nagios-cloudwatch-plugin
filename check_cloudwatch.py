@@ -117,6 +117,8 @@ def main():
     argp.add_argument('--divisor-statistic', choices=['Average','Sum','SampleCount','Maximum','Minimum'],
                       help='ratio mode: statistic used to evaluate metric of the divisor')
 
+    argp.add_argument('-i', '--time-span', type=int, default=60,
+                      help='timespan to aggregate the values with {{statistic}}')
     argp.add_argument('-w', '--warning', metavar='RANGE', default=0,
                       help='warning if threshold is outside RANGE')
     argp.add_argument('-c', '--critical', metavar='RANGE', default=0,
