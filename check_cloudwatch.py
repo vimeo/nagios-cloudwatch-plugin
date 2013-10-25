@@ -35,11 +35,11 @@ class CloudWatchMetricSummary(nagiosplugin.Summary):
         
     def ok(self, results):
         full_metric = '%s:%s' % (self.namespace, self.metric)
-        return 'CloudWatch Metric %s with dimenstions %s' % (full_metric, self.dimensions)
+        return 'CloudWatch Metric %s with dimensions %s' % (full_metric, self.dimensions)
         
     def problem(self, results):
         full_metric = '%s:%s' % (self.namespace, self.metric)
-        return 'CloudWatch Metric %s with dimenstions %s' % (full_metric, self.dimensions)
+        return 'CloudWatch Metric %s with dimensions %s' % (full_metric, self.dimensions)
     
 class KeyValArgs(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
