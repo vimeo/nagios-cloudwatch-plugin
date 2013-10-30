@@ -61,19 +61,17 @@ def main():
     argp.add_argument('-m', '--metric', required=True,
                       help='metric name')
     argp.add_argument('-d', '--dimensions', action=KeyValArgs,
-                      help='dimensions of cloudwatch metric')
-    argp.add_argument('-s', '--statistic', choices=['Average','Sum','SampleCount','Maximum','Minimum'], required=True,
+                      help='dimensions of cloudwatch metric in the format dimension=value[,dimension=value...]')
+    argp.add_argument('-s', '--statistic', choices=['Average','Sum','SampleCount','Maximum','Minimum'], default='Average',
                       help='statistic used to evaluate metric')
     argp.add_argument('-l', '--lag', default=0,
-                      help='delay to add to starting time for gathering metric. useful for ec2 basic monitoring which aggregates over 5min periods')
+                      help='delay in seconds to add to starting time for gathering metric. useful for ec2 basic monitoring which aggregates over 5min periods')
     argp.add_argument('-w', '--warning', metavar='RANGE', default=0,
-                      help='warning if workers threshold is outside RANGE')
+                      help='warning if threshold is outside RANGE')
     argp.add_argument('-c', '--critical', metavar='RANGE', default=0,
-                      help='critical if workers threshold is outside RANGE')
+                      help='critical if threshold is outside RANGE')
     argp.add_argument('-v', '--verbose', action='count', default=0,
                       help='increase verbosity (use up to 3 times)')
-    argp.add_argument('-t', '--timeout', default=10,
-                      help='abort execution after TIMEOUT seconds')
 
     args=argp.parse_args()
 
