@@ -5,16 +5,18 @@ from datetime import datetime, timedelta
 
 class CloudWatchMetric(nagiosplugin.Resource):
 
-    def __init__(self, namespace, metric, dimensions, statistic):
+    def __init__(self, namespace, metric, dimensions, statistic, lag):
         self.namespace = namespace
         self.metric = metric
         self.dimensions = dimensions
         self.statistic = statistic
+        self.lag = int(lag)
 
     def probe(self):
         logging.info('getting stats from cloudwatch')
         cw = boto.connect_cloudwatch()
-        start_time = datetime.utcnow() - timedelta(minutes=1)
+        start_time = datetime.utcnow() - timedelta(minutes=1) - timedelta(seconds=self.lag)
+        logging.info(start_time)
         end_time = datetime.utcnow()
         stats = []
         stats = cw.get_metric_statistics(60, start_time, end_time,
@@ -62,6 +64,8 @@ def main():
                       help='dimensions of cloudwatch metric')
     argp.add_argument('-s', '--statistic', choices=['Average','Sum','SampleCount','Maximum','Minimum'], required=True,
                       help='statistic used to evaluate metric')
+    argp.add_argument('-l', '--lag', default=0,
+                      help='delay to add to starting time for gathering metric. useful for ec2 basic monitoring which aggregates over 5min periods')
     argp.add_argument('-w', '--warning', metavar='RANGE', default=0,
                       help='warning if workers threshold is outside RANGE')
     argp.add_argument('-c', '--critical', metavar='RANGE', default=0,
@@ -74,7 +78,7 @@ def main():
     args=argp.parse_args()
 
     check = nagiosplugin.Check(
-            CloudWatchMetric(args.namespace, args.metric, args.dimensions, args.statistic),
+            CloudWatchMetric(args.namespace, args.metric, args.dimensions, args.statistic, args.lag),
             nagiosplugin.ScalarContext('cloudwatchmetric', args.warning, args.critical),
             CloudWatchMetricSummary(args.namespace, args.metric, args.dimensions, args.statistic))
     check.main(verbose=args.verbose)
