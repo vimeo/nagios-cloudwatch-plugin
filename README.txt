@@ -11,9 +11,9 @@ Setup
 1. pip install nagios-cloudwatch-plugin
 2. /usr/local/bin/check_cloudwatch.py -h::
 
-		usage: check_cloudwatch.py [-h] -n NAMESPACE -m METRIC [-d DIMENSIONS] -s
-		                           {Average,Sum,SampleCount,Maximum,Minimum}
-		                           [-w RANGE] [-c RANGE] [-v] [-t TIMEOUT]
+		usage: check_cloudwatch.py [-h] -n NAMESPACE -m METRIC [-d DIMENSIONS]
+		                           [-s {Average,Sum,SampleCount,Maximum,Minimum}]
+		                           [-l LAG] [-w RANGE] [-c RANGE] [-v]
 		
 		Nagios plugin to check cloudwatch metrics
 		
@@ -24,16 +24,18 @@ Setup
 		  -m METRIC, --metric METRIC
 		                        metric name
 		  -d DIMENSIONS, --dimensions DIMENSIONS
-		                        dimensions of cloudwatch metric
+		                        dimensions of cloudwatch metric in the format
+		                        dimension=value[,dimension=value...]
 		  -s {Average,Sum,SampleCount,Maximum,Minimum}, --statistic {Average,Sum,SampleCount,Maximum,Minimum}
 		                        statistic used to evaluate metric
+		  -l LAG, --lag LAG     delay in seconds to add to starting time for gathering
+		                        metric. useful for ec2 basic monitoring which
+		                        aggregates over 5min periods
 		  -w RANGE, --warning RANGE
-		                        warning if workers threshold is outside RANGE
+		                        warning if threshold is outside RANGE
 		  -c RANGE, --critical RANGE
-		                        critical if workers threshold is outside RANGE
+		                        critical if threshold is outside RANGE
 		  -v, --verbose         increase verbosity (use up to 3 times)
-		  -t TIMEOUT, --timeout TIMEOUT
-		                        abort execution after TIMEOUT seconds
 
 Develop
 =======
