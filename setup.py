@@ -10,6 +10,8 @@ setup(name='nagios-cloudwatch-plugin',
         license="MIT",
         keywords="nagios cloudwatch plugin",
         url='https://github.com/FastSociety/nagios-cloudwatch-plugin',
+        description='Nagios plugin to check AWS CloudWatch metrics',
+        long_description=open('README.txt').read(),
         install_requires=["argparse","nagiosplugin","boto"],
         
         scripts=["check_cloudwatch.py"]
