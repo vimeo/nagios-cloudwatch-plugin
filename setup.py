@@ -4,7 +4,6 @@ from distutils.core import setup
 
 setup(name='nagios-cloudwatch-plugin',
         version='0.2',
-        description='Nagios Plugin for AWS Cloudwatch Metrics',
         author='William Hutson',
         author_email='wilrnh@gmail.com',
         license="MIT",
