@@ -5,21 +5,22 @@ from datetime import datetime, timedelta
 
 class CloudWatchMetric(nagiosplugin.Resource):
 
-    def __init__(self, namespace, metric, dimensions, statistic, lag):
+    def __init__(self, namespace, metric, dimensions, statistic, period, lag):
         self.namespace = namespace
         self.metric = metric
         self.dimensions = dimensions
         self.statistic = statistic
+        self.period = int(period)
         self.lag = int(lag)
 
     def probe(self):
         logging.info('getting stats from cloudwatch')
         cw = boto.connect_cloudwatch()
-        start_time = datetime.utcnow() - timedelta(minutes=1) - timedelta(seconds=self.lag)
+        start_time = datetime.utcnow() - timedelta(seconds=self.period) - timedelta(seconds=self.lag)
         logging.info(start_time)
         end_time = datetime.utcnow()
         stats = []
-        stats = cw.get_metric_statistics(60, start_time, end_time,
+        stats = cw.get_metric_statistics(self.period, start_time, end_time,
                                          self.metric, self.namespace, self.statistic, self.dimensions)
         if len(stats) == 0:
             return []
@@ -64,6 +65,8 @@ def main():
                       help='dimensions of cloudwatch metric in the format dimension=value[,dimension=value...]')
     argp.add_argument('-s', '--statistic', choices=['Average','Sum','SampleCount','Maximum','Minimum'], default='Average',
                       help='statistic used to evaluate metric')
+    argp.add_argument('-p', '--period', default=60,
+                      help='the period in seconds over which the statistic is applied')
     argp.add_argument('-l', '--lag', default=0,
                       help='delay in seconds to add to starting time for gathering metric. useful for ec2 basic monitoring which aggregates over 5min periods')
     argp.add_argument('-w', '--warning', metavar='RANGE', default=0,
@@ -76,7 +79,7 @@ def main():
     args=argp.parse_args()
 
     check = nagiosplugin.Check(
-            CloudWatchMetric(args.namespace, args.metric, args.dimensions, args.statistic, args.lag),
+            CloudWatchMetric(args.namespace, args.metric, args.dimensions, args.statistic, args.period, args.lag),
             nagiosplugin.ScalarContext('cloudwatchmetric', args.warning, args.critical),
             CloudWatchMetricSummary(args.namespace, args.metric, args.dimensions, args.statistic))
     check.main(verbose=args.verbose)

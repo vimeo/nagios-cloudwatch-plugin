@@ -3,7 +3,7 @@ Nagios CloudWatch Plugin
 ========================
 
 This plugin for checks AWS CloudWatch metrics. It uses the popular **boto**
-library to gather metric values. this plugin does not currently have a means of
+library to gather metric values. This plugin does not currently have a means of
 directly supplying AWS credentials - for this, consult the boto `docs <https://code.google.com/p/boto/wiki/BotoConfig>`_.
 
 Setup
@@ -13,7 +13,7 @@ Setup
 
 		usage: check_cloudwatch.py [-h] -n NAMESPACE -m METRIC [-d DIMENSIONS]
 		                           [-s {Average,Sum,SampleCount,Maximum,Minimum}]
-		                           [-l LAG] [-w RANGE] [-c RANGE] [-v]
+		                           [-p PERIOD] [-l LAG] [-w RANGE] [-c RANGE] [-v]
 		
 		Nagios plugin to check cloudwatch metrics
 		
@@ -28,6 +28,9 @@ Setup
 		                        dimension=value[,dimension=value...]
 		  -s {Average,Sum,SampleCount,Maximum,Minimum}, --statistic {Average,Sum,SampleCount,Maximum,Minimum}
 		                        statistic used to evaluate metric
+		  -p PERIOD, --period PERIOD
+		                        the period in seconds over which the statistic is
+		                        applied
 		  -l LAG, --lag LAG     delay in seconds to add to starting time for gathering
 		                        metric. useful for ec2 basic monitoring which
 		                        aggregates over 5min periods
