@@ -44,11 +44,12 @@ class CloudWatchRatioMetric(nagiosplugin.Resource):
 
 class CloudWatchDeltaMetric(nagiosplugin.Resource):
 
-    def __init__(self, namespace, metric, dimensions, statistic, lag, delta):
+    def __init__(self, namespace, metric, dimensions, statistic, period, lag, delta):
         self.namespace = namespace
         self.metric = metric
         self.dimensions = dimensions
         self.statistic = statistic
+        self.period = period
         self.lag = lag
         self.delta = delta
 
@@ -58,12 +59,12 @@ class CloudWatchDeltaMetric(nagiosplugin.Resource):
 
         datapoint1_start_time = (datetime.utcnow() - timedelta(seconds=self.lag)) - timedelta(seconds=self.delta)
         datapoint1_end_time = datetime.utcnow() - timedelta(seconds=self.delta)
-        datapoint1_stats = cw.get_metric_statistics(60, datapoint1_start_time, datapoint1_end_time,
+        datapoint1_stats = cw.get_metric_statistics(self.period, datapoint1_start_time, datapoint1_end_time,
                                          self.metric, self.namespace, self.statistic, self.dimensions)
 
         datapoint2_start_time = datetime.utcnow() - timedelta(seconds=self.lag)
         datapoint2_end_time = datetime.utcnow()
-        datapoint2_stats = cw.get_metric_statistics(60, datapoint2_start_time, datapoint2_end_time,
+        datapoint2_stats = cw.get_metric_statistics(self.period, datapoint2_start_time, datapoint2_end_time,
                                          self.metric, self.namespace, self.statistic, self.dimensions)
 
         if len(datapoint1_stats) == 0 or len(datapoint2_stats) == 0:
@@ -151,7 +152,7 @@ def main():
                       help='dimensions of cloudwatch metric in the format dimension=value[,dimension=value...]')
     argp.add_argument('-s', '--statistic', choices=['Average','Sum','SampleCount','Maximum','Minimum'], default='Average',
                       help='statistic used to evaluate metric')
-    argp.add_argument('-p', '--period', default=60,
+    argp.add_argument('-p', '--period', default=60, type=int,
                       help='the period in seconds over which the statistic is applied')
     argp.add_argument('-l', '--lag', default=0,
                       help='delay in seconds to add to starting time for gathering metric. useful for ec2 basic monitoring which aggregates over 5min periods')
@@ -183,7 +184,7 @@ def main():
         metric = CloudWatchRatioMetric(args.namespace, args.metric, args.dimensions, args.statistic, args.period, args.lag, args.divisor_namespace,  args.divisor_metric, args.divisor_dimensions, args.divisor_statistic)
         summary = CloudWatchMetricRatioSummary(args.namespace, args.metric, args.dimensions, args.statistic, args.divisor_namespace,  args.divisor_metric, args.divisor_dimensions, args.divisor_statistic)
     elif args.delta:
-        metric = CloudWatchDeltaMetric(args.namespace, args.metric, args.dimensions, args.statistic, args.lag, args.delta)
+        metric = CloudWatchDeltaMetric(args.namespace, args.metric, args.dimensions, args.statistic, args.period, args.lag, args.delta)
         summary = CloudWatchDeltaMetricSummary(args.namespace, args.metric, args.dimensions, args.statistic, args.delta)
     else:
         metric = CloudWatchMetric(args.namespace, args.metric, args.dimensions, args.statistic, args.lag)
