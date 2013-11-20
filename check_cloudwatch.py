@@ -28,6 +28,20 @@ class CloudWatchMetric(nagiosplugin.Resource):
         stat = stats[0]
         return [nagiosplugin.Metric('cloudwatchmetric', stat[self.statistic], stat['Unit'])]
 
+class CloudWatchRatioMetric(nagiosplugin.Resource):
+
+    def __init__(self, dividend_namespace, dividend_metric, dividend_dimension, dividend_statistic, period, lag, divisor_namespace, divisor_metric, divisor_dimension, divisor_statistic):
+        self.dividend_metric = CloudWatchMetric(dividend_namespace, dividend_metric, dividend_dimension, dividend_statistic, int(period), int(lag))
+        self.divisor_metric  = CloudWatchMetric(divisor_namespace, divisor_metric, divisor_dimension, divisor_statistic, int(period), int(lag))
+
+    def probe(self):
+        dividend = self.dividend_metric.probe()[0]
+        divisor = self.divisor_metric.probe()[0]
+
+        ratio_unit = '%s / %s' % ( dividend.uom, divisor.uom)
+
+        return [nagiosplugin.Metric('cloudwatchmetric', dividend.value / divisor.value, ratio_unit)]
+
 class CloudWatchMetricSummary(nagiosplugin.Summary):
 
     def __init__(self, namespace, metric, dimensions, statistic):
@@ -43,6 +57,28 @@ class CloudWatchMetricSummary(nagiosplugin.Summary):
     def problem(self, results):
         full_metric = '%s:%s' % (self.namespace, self.metric)
         return 'CloudWatch Metric %s with dimenstions %s' % (full_metric, self.dimensions)
+
+class CloudWatchMetricRatioSummary(nagiosplugin.Summary):
+
+    def __init__(self, dividend_namespace, dividend_metric, dividend_dimensions, dividend_statistic, divisor_namespace, divisor_metric, divisor_dimensions, divisor_statistic):
+        self.dividend_namespace = dividend_namespace
+        self.dividend_metric = dividend_metric
+        self.dividend_dimensions = dividend_dimensions
+        self.dividend_statistic = dividend_statistic
+        self.divisor_namespace = divisor_namespace
+        self.divisor_metric = divisor_metric
+        self.divisor_dimensions = divisor_dimensions
+        self.divisor_statistic = divisor_statistic
+
+    def ok(self, results):
+        dividend_full_metric = '%s:%s' % (self.dividend_namespace, self.dividend_metric)
+        divisor_full_metric = '%s:%s' % (self.divisor_namespace, self.divisor_metric)
+        return 'Ratio: CloudWatch Metric %s with dimenstions %s / CloudWatch Metric %s with dimenstions %s' % (dividend_full_metric, self.dividend_dimensions, divisor_full_metric, self.divisor_dimensions)
+
+    def problem(self, results):
+        dividend_full_metric = '%s:%s' % (self.dividend_namespace, self.dividend_metric)
+        divisor_full_metric = '%s:%s' % (self.divisor_namespace, self.divisor_metric)
+        return 'Ratio: CloudWatch Metric %s with dimenstions %s / CloudWatch Metric %s with dimenstions %s' % (dividend_full_metric, self.dividend_dimensions, divisor_full_metric, self.divisor_dimensions)
 
 class KeyValArgs(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
@@ -69,6 +105,18 @@ def main():
                       help='the period in seconds over which the statistic is applied')
     argp.add_argument('-l', '--lag', default=0,
                       help='delay in seconds to add to starting time for gathering metric. useful for ec2 basic monitoring which aggregates over 5min periods')
+
+    argp.add_argument('-r', '--ratio', default=False, action='store_true',
+                      help='this activates ratio mode')
+    argp.add_argument('--divisor-namespace',
+                      help='ratio mode: namespace for cloudwatch metric of the divisor')
+    argp.add_argument('--divisor-metric',
+                      help='ratio mode: metric name of the divisor')
+    argp.add_argument('--divisor-dimensions', action=KeyValArgs,
+                      help='ratio mode: dimensions of cloudwatch metric of the divisor')
+    argp.add_argument('--divisor-statistic', choices=['Average','Sum','SampleCount','Maximum','Minimum'],
+                      help='ratio mode: statistic used to evaluate metric of the divisor')
+
     argp.add_argument('-w', '--warning', metavar='RANGE', default=0,
                       help='warning if threshold is outside RANGE')
     argp.add_argument('-c', '--critical', metavar='RANGE', default=0,
@@ -78,10 +126,17 @@ def main():
 
     args=argp.parse_args()
 
+    if args.ratio:
+        metric = CloudWatchRatioMetric(args.namespace, args.metric, args.dimensions, args.statistic, args.period, args.lag, args.divisor_namespace,  args.divisor_metric, args.divisor_dimensions, args.divisor_statistic)
+        summary = CloudWatchMetricRatioSummary(args.namespace, args.metric, args.dimensions, args.statistic, args.divisor_namespace,  args.divisor_metric, args.divisor_dimensions, args.divisor_statistic)
+    else:
+        metric = CloudWatchMetric(args.namespace, args.metric, args.dimensions, args.statistic, args.period, args.lag)
+        summary = CloudWatchMetricSummary(args.namespace, args.metric, args.dimensions, args.statistic)
+
     check = nagiosplugin.Check(
-            CloudWatchMetric(args.namespace, args.metric, args.dimensions, args.statistic, args.period, args.lag),
+            metric,
             nagiosplugin.ScalarContext('cloudwatchmetric', args.warning, args.critical),
-            CloudWatchMetricSummary(args.namespace, args.metric, args.dimensions, args.statistic))
+            summary)
     check.main(verbose=args.verbose)
 
 if __name__ == "__main__":
