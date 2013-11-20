@@ -13,7 +13,12 @@ Setup
 
 		usage: check_cloudwatch.py [-h] -n NAMESPACE -m METRIC [-d DIMENSIONS]
 		                           [-s {Average,Sum,SampleCount,Maximum,Minimum}]
-		                           [-p PERIOD] [-l LAG] [-w RANGE] [-c RANGE] [-v]
+		                           [-p PERIOD] [-l LAG] [-r]
+		                           [--divisor-namespace DIVISOR_NAMESPACE]
+		                           [--divisor-metric DIVISOR_METRIC]
+		                           [--divisor-dimensions DIVISOR_DIMENSIONS]
+		                           [--divisor-statistic {Average,Sum,SampleCount,Maximum,Minimum}]
+		                           [-w RANGE] [-c RANGE] [-v]
 		
 		Nagios plugin to check cloudwatch metrics
 		
@@ -34,11 +39,27 @@ Setup
 		  -l LAG, --lag LAG     delay in seconds to add to starting time for gathering
 		                        metric. useful for ec2 basic monitoring which
 		                        aggregates over 5min periods
+		  -r, --ratio           this activates ratio mode
+		  --divisor-namespace DIVISOR_NAMESPACE
+		                        ratio mode: namespace for cloudwatch metric of the
+		                        divisor
+		  --divisor-metric DIVISOR_METRIC
+		                        ratio mode: metric name of the divisor
+		  --divisor-dimensions DIVISOR_DIMENSIONS
+		                        ratio mode: dimensions of cloudwatch metric of the
+		                        divisor
+		  --divisor-statistic {Average,Sum,SampleCount,Maximum,Minimum}
+		                        ratio mode: statistic used to evaluate metric of the
+		                        divisor
 		  -w RANGE, --warning RANGE
 		                        warning if threshold is outside RANGE
 		  -c RANGE, --critical RANGE
 		                        critical if threshold is outside RANGE
 		  -v, --verbose         increase verbosity (use up to 3 times)
+
+Releases
+========
+0.2.3 - Nov 20, 2013: Added support for monitoring ratio between two metrics. Thanks s0enke!
 
 Develop
 =======
