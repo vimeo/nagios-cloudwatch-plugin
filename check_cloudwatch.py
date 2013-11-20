@@ -57,12 +57,12 @@ class CloudWatchDeltaMetric(nagiosplugin.Resource):
         logging.info('getting stats from cloudwatch')
         cw = boto.connect_cloudwatch()
 
-        datapoint1_start_time = (datetime.utcnow() - timedelta(seconds=self.lag)) - timedelta(seconds=self.delta)
+        datapoint1_start_time = (datetime.utcnow() - timedelta(seconds=self.period) - timedelta(seconds=self.lag)) - timedelta(seconds=self.delta)
         datapoint1_end_time = datetime.utcnow() - timedelta(seconds=self.delta)
         datapoint1_stats = cw.get_metric_statistics(self.period, datapoint1_start_time, datapoint1_end_time,
                                          self.metric, self.namespace, self.statistic, self.dimensions)
 
-        datapoint2_start_time = datetime.utcnow() - timedelta(seconds=self.lag)
+        datapoint2_start_time = datetime.utcnow() - timedelta(seconds=self.period) - timedelta(seconds=self.lag)
         datapoint2_end_time = datetime.utcnow()
         datapoint2_stats = cw.get_metric_statistics(self.period, datapoint2_start_time, datapoint2_end_time,
                                          self.metric, self.namespace, self.statistic, self.dimensions)
