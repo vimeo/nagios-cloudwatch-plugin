@@ -3,7 +3,7 @@
 from distutils.core import setup
 
 setup(name='nagios-cloudwatch-plugin',
-        version='0.2.3',
+        version='0.2.4',
         author='William Hutson',
         author_email='wilrnh@gmail.com',
         license="MIT",

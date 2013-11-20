@@ -18,7 +18,7 @@ Setup
 		                           [--divisor-metric DIVISOR_METRIC]
 		                           [--divisor-dimensions DIVISOR_DIMENSIONS]
 		                           [--divisor-statistic {Average,Sum,SampleCount,Maximum,Minimum}]
-		                           [-w RANGE] [-c RANGE] [-v]
+		                           [--delta DELTA] [-w RANGE] [-c RANGE] [-v]
 		
 		Nagios plugin to check cloudwatch metrics
 		
@@ -51,6 +51,7 @@ Setup
 		  --divisor-statistic {Average,Sum,SampleCount,Maximum,Minimum}
 		                        ratio mode: statistic used to evaluate metric of the
 		                        divisor
+		  --delta DELTA         time in seconds to build a delta mesurement
 		  -w RANGE, --warning RANGE
 		                        warning if threshold is outside RANGE
 		  -c RANGE, --critical RANGE
@@ -59,7 +60,8 @@ Setup
 
 Releases
 ========
-0.2.3 - Nov 20, 2013: Added support for monitoring ratio between two metrics. Thanks s0enke!
+0.2.4 - Nov 20, 2013: Added support for delta monitoring of a single metric. Thanks nesQuick & s0enke!
+0.2.3 - Nov 20, 2013: Added support for monitoring ratio between two metrics. Thanks nesQuick & s0enke!
 
 Develop
 =======
