@@ -187,7 +187,7 @@ def main():
         metric = CloudWatchDeltaMetric(args.namespace, args.metric, args.dimensions, args.statistic, args.period, args.lag, args.delta)
         summary = CloudWatchDeltaMetricSummary(args.namespace, args.metric, args.dimensions, args.statistic, args.delta)
     else:
-        metric = CloudWatchMetric(args.namespace, args.metric, args.dimensions, args.statistic, args.lag)
+        metric = CloudWatchMetric(args.namespace, args.metric, args.dimensions, args.statistic, args.period, args.lag)
         summary = CloudWatchMetricSummary(args.namespace, args.metric, args.dimensions, args.statistic)
 
     check = nagiosplugin.Check(
