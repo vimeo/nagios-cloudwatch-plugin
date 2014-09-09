@@ -64,8 +64,11 @@ Setup
 Releases
 ========
 0.2.5 - Sep 09, 2014: Support passing region as an argument, defaulting to boto default. Thanks grahamlyons!
+
 0.2.4 - Nov 20, 2013: Added support for delta monitoring of a single metric. Thanks nesQuick & s0enke!
+
 0.2.3 - Nov 20, 2013: Added support for monitoring ratio between two metrics. Thanks nesQuick & s0enke!
+
 
 Develop
 =======
