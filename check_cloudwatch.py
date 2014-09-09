@@ -1,21 +1,36 @@
 #!/usr/bin/env python
 
-import argparse, logging, nagiosplugin, boto
+import argparse, logging, nagiosplugin
+from boto.ec2 import cloudwatch
 from datetime import datetime, timedelta
 
-class CloudWatchMetric(nagiosplugin.Resource):
+class CloudWatchBase(nagiosplugin.Resource):
 
-    def __init__(self, namespace, metric, dimensions, statistic, period, lag):
+    def __init__(self, namespace, metric, dimensions, statistic, period, lag, region=None):
         self.namespace = namespace
         self.metric = metric
         self.dimensions = dimensions
         self.statistic = statistic
         self.period = int(period)
         self.lag = int(lag)
+        if region:
+            self.region = region
+        else:
+            self.region = cloudwatch.CloudWatchConnection.DefaultRegionName
+
+    def _connect(self):
+        try:
+            self._cw
+        except AttributeError:
+            self._cw = cloudwatch.connect_to_region(self.region)
+        return self._cw
+
+
+class CloudWatchMetric(CloudWatchBase):
 
     def probe(self):
         logging.info('getting stats from cloudwatch')
-        cw = boto.connect_cloudwatch()
+        cw = self._connect()
         start_time = datetime.utcnow() - timedelta(seconds=self.period) - timedelta(seconds=self.lag)
         logging.info(start_time)
         end_time = datetime.utcnow()
@@ -30,9 +45,9 @@ class CloudWatchMetric(nagiosplugin.Resource):
 
 class CloudWatchRatioMetric(nagiosplugin.Resource):
 
-    def __init__(self, dividend_namespace, dividend_metric, dividend_dimension, dividend_statistic, period, lag, divisor_namespace, divisor_metric, divisor_dimension, divisor_statistic):
-        self.dividend_metric = CloudWatchMetric(dividend_namespace, dividend_metric, dividend_dimension, dividend_statistic, int(period), int(lag))
-        self.divisor_metric  = CloudWatchMetric(divisor_namespace, divisor_metric, divisor_dimension, divisor_statistic, int(period), int(lag))
+    def __init__(self, dividend_namespace, dividend_metric, dividend_dimension, dividend_statistic, period, lag, divisor_namespace, divisor_metric, divisor_dimension, divisor_statistic, region):
+        self.dividend_metric = CloudWatchMetric(dividend_namespace, dividend_metric, dividend_dimension, dividend_statistic, int(period), int(lag), region)
+        self.divisor_metric  = CloudWatchMetric(divisor_namespace, divisor_metric, divisor_dimension, divisor_statistic, int(period), int(lag), region)
 
     def probe(self):
         dividend = self.dividend_metric.probe()[0]
@@ -42,20 +57,15 @@ class CloudWatchRatioMetric(nagiosplugin.Resource):
 
         return [nagiosplugin.Metric('cloudwatchmetric', dividend.value / divisor.value, ratio_unit)]
 
-class CloudWatchDeltaMetric(nagiosplugin.Resource):
+class CloudWatchDeltaMetric(CloudWatchBase):
 
-    def __init__(self, namespace, metric, dimensions, statistic, period, lag, delta):
-        self.namespace = namespace
-        self.metric = metric
-        self.dimensions = dimensions
-        self.statistic = statistic
-        self.period = period
-        self.lag = lag
+    def __init__(self, namespace, metric, dimensions, statistic, period, lag, delta, region):
+        super(CloudWatchDeltaMetric, self).__init__(namespace, metric, dimensions, statistic, period, lag, region)
         self.delta = delta
 
     def probe(self):
         logging.info('getting stats from cloudwatch')
-        cw = boto.connect_cloudwatch()
+        cw = self._connect()
 
         datapoint1_start_time = (datetime.utcnow() - timedelta(seconds=self.period) - timedelta(seconds=self.lag)) - timedelta(seconds=self.delta)
         datapoint1_end_time = datetime.utcnow() - timedelta(seconds=self.delta)
@@ -178,16 +188,19 @@ def main():
     argp.add_argument('-v', '--verbose', action='count', default=0,
                       help='increase verbosity (use up to 3 times)')
 
+    argp.add_argument('-R', '--region',
+                      help='The AWS region to read metrics from')
+
     args=argp.parse_args()
 
     if args.ratio:
-        metric = CloudWatchRatioMetric(args.namespace, args.metric, args.dimensions, args.statistic, args.period, args.lag, args.divisor_namespace,  args.divisor_metric, args.divisor_dimensions, args.divisor_statistic)
+        metric = CloudWatchRatioMetric(args.namespace, args.metric, args.dimensions, args.statistic, args.period, args.lag, args.divisor_namespace,  args.divisor_metric, args.divisor_dimensions, args.divisor_statistic, args.region)
         summary = CloudWatchMetricRatioSummary(args.namespace, args.metric, args.dimensions, args.statistic, args.divisor_namespace,  args.divisor_metric, args.divisor_dimensions, args.divisor_statistic)
     elif args.delta:
-        metric = CloudWatchDeltaMetric(args.namespace, args.metric, args.dimensions, args.statistic, args.period, args.lag, args.delta)
+        metric = CloudWatchDeltaMetric(args.namespace, args.metric, args.dimensions, args.statistic, args.period, args.lag, args.delta, args.region)
         summary = CloudWatchDeltaMetricSummary(args.namespace, args.metric, args.dimensions, args.statistic, args.delta)
     else:
-        metric = CloudWatchMetric(args.namespace, args.metric, args.dimensions, args.statistic, args.period, args.lag)
+        metric = CloudWatchMetric(args.namespace, args.metric, args.dimensions, args.statistic, args.period, args.lag, args.region)
         summary = CloudWatchMetricSummary(args.namespace, args.metric, args.dimensions, args.statistic)
 
     check = nagiosplugin.Check(
