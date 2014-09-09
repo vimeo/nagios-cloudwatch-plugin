@@ -19,6 +19,7 @@ Setup
 		                           [--divisor-dimensions DIVISOR_DIMENSIONS]
 		                           [--divisor-statistic {Average,Sum,SampleCount,Maximum,Minimum}]
 		                           [--delta DELTA] [-w RANGE] [-c RANGE] [-v]
+		                           [-R REGION]
 		
 		Nagios plugin to check cloudwatch metrics
 		
@@ -57,9 +58,12 @@ Setup
 		  -c RANGE, --critical RANGE
 		                        critical if threshold is outside RANGE
 		  -v, --verbose         increase verbosity (use up to 3 times)
+		  -R REGION, --region REGION
+		                        The AWS region to read metrics from
 
 Releases
 ========
+0.2.5 - Sep 09, 2014: Support passing region as an argument, defaulting to boto default. Thanks grahamlyons!
 0.2.4 - Nov 20, 2013: Added support for delta monitoring of a single metric. Thanks nesQuick & s0enke!
 0.2.3 - Nov 20, 2013: Added support for monitoring ratio between two metrics. Thanks nesQuick & s0enke!
 
