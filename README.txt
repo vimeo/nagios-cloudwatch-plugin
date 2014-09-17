@@ -61,6 +61,16 @@ Setup
 		  -R REGION, --region REGION
 		                        The AWS region to read metrics from
 
+Usage
+=====
+Cloudwatch metrics
+------------------
+For information on how CloudWatch stores metrics check this `doc <http://docs.aws.amazon.com/AmazonCloudWatch/latest/DeveloperGuide/CW_Support_For_AWS.html>`_ out.
+
+- Simple EC2 CPU Utilization check, with warning and critical threshold ranges::
+
+	check_cloudwatch.py -n AWS/EC2 -m CPUUtilization -d InstanceId=i-abcd1234 -w 0:75 -c 0:90
+
 Releases
 ========
 0.2.5 - Sep 09, 2014: Support passing region as an argument, defaulting to boto default. Thanks grahamlyons!
