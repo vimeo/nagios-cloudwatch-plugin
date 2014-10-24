@@ -73,6 +73,8 @@ For information on how CloudWatch stores metrics check this `doc <http://docs.aw
 
 Releases
 ========
+0.2.6 - Oct 23, 2014: Updated Readme example, fixed typoes. Thanks sampierson !
+
 0.2.5 - Sep 09, 2014: Support passing region as an argument, defaulting to boto default. Thanks grahamlyons!
 
 0.2.4 - Nov 20, 2013: Added support for delta monitoring of a single metric. Thanks nesQuick & s0enke!
