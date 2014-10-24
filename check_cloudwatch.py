@@ -96,11 +96,11 @@ class CloudWatchMetricSummary(nagiosplugin.Summary):
 
     def ok(self, results):
         full_metric = '%s:%s' % (self.namespace, self.metric)
-        return 'CloudWatch Metric %s with dimenstions %s' % (full_metric, self.dimensions)
+        return 'CloudWatch Metric %s with dimensions %s' % (full_metric, self.dimensions)
 
     def problem(self, results):
         full_metric = '%s:%s' % (self.namespace, self.metric)
-        return 'CloudWatch Metric %s with dimenstions %s' % (full_metric, self.dimensions)
+        return 'CloudWatch Metric %s with dimensions %s' % (full_metric, self.dimensions)
 
 class CloudWatchMetricRatioSummary(nagiosplugin.Summary):
 
@@ -117,12 +117,12 @@ class CloudWatchMetricRatioSummary(nagiosplugin.Summary):
     def ok(self, results):
         dividend_full_metric = '%s:%s' % (self.dividend_namespace, self.dividend_metric)
         divisor_full_metric = '%s:%s' % (self.divisor_namespace, self.divisor_metric)
-        return 'Ratio: CloudWatch Metric %s with dimenstions %s / CloudWatch Metric %s with dimenstions %s' % (dividend_full_metric, self.dividend_dimensions, divisor_full_metric, self.divisor_dimensions)
+        return 'Ratio: CloudWatch Metric %s with dimensions %s / CloudWatch Metric %s with dimensions %s' % (dividend_full_metric, self.dividend_dimensions, divisor_full_metric, self.divisor_dimensions)
 
     def problem(self, results):
         dividend_full_metric = '%s:%s' % (self.dividend_namespace, self.dividend_metric)
         divisor_full_metric = '%s:%s' % (self.divisor_namespace, self.divisor_metric)
-        return 'Ratio: CloudWatch Metric %s with dimenstions %s / CloudWatch Metric %s with dimenstions %s' % (dividend_full_metric, self.dividend_dimensions, divisor_full_metric, self.divisor_dimensions)
+        return 'Ratio: CloudWatch Metric %s with dimensions %s / CloudWatch Metric %s with dimensions %s' % (dividend_full_metric, self.dividend_dimensions, divisor_full_metric, self.divisor_dimensions)
 
 class CloudWatchDeltaMetricSummary(nagiosplugin.Summary):
 
@@ -135,11 +135,11 @@ class CloudWatchDeltaMetricSummary(nagiosplugin.Summary):
 
     def ok(self, results):
         full_metric = '%s:%s' % (self.namespace, self.metric)
-        return 'CloudWatch %d seconds Delta %s Metric with dimenstions %s' % (self.delta, full_metric, self.dimensions)
+        return 'CloudWatch %d seconds Delta %s Metric with dimensions %s' % (self.delta, full_metric, self.dimensions)
 
     def problem(self, results):
         full_metric = '%s:%s' % (self.namespace, self.metric)
-        return 'CloudWatch %d seconds Delta %s Metric with dimenstions %s' % (self.delta, full_metric, self.dimensions)
+        return 'CloudWatch %d seconds Delta %s Metric with dimensions %s' % (self.delta, full_metric, self.dimensions)
 
 class KeyValArgs(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
