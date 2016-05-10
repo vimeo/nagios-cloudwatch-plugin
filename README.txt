@@ -20,6 +20,7 @@ Setup
 		                           [--divisor-statistic {Average,Sum,SampleCount,Maximum,Minimum}]
 		                           [--delta DELTA] [-w RANGE] [-c RANGE] [-v]
 		                           [-R REGION]
+                               [-P profile_name]
 		
 		Nagios plugin to check cloudwatch metrics
 		
@@ -60,6 +61,8 @@ Setup
 		  -v, --verbose         increase verbosity (use up to 3 times)
 		  -R REGION, --region REGION
 		                        The AWS region to read metrics from
+      -P profile_name, --profile profile_name
+                            Profile name from ~/.aws/credentials
 
 Usage
 =====
@@ -70,6 +73,8 @@ For information on how CloudWatch stores metrics check this `doc <http://docs.aw
 - Simple EC2 CPU Utilization check, with warning and critical threshold ranges::
 
 	check_cloudwatch.py -R us-west-2 -n AWS/EC2 -m CPUUtilization -p 600 -d InstanceId=i-abcd1234 -w 0:75 -c 0:90
+	check_cloudwatch.py -R us-west-2 -n AWS/EC2 -m CPUUtilization -p 600 -d InstanceId=i-1bcd1234 -w 0:75 -c 0:90 -P dc-live
+	check_cloudwatch.py -R us-west-2 -n AWS/EC2 -m CPUUtilization -p 600 -d InstanceId=i-2bcd1234 -w 0:75 -c 0:90 -P dc-staging
 
 Releases
 ========
