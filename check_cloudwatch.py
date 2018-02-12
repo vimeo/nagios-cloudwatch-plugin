@@ -17,11 +17,7 @@ class CloudWatchBase(nagiosplugin.Resource):
             self.region = region
         else:
             self.region = cloudwatch.CloudWatchConnection.DefaultRegionName
-
-        if profile:
-            self.profile = profile
-        else:
-            self.profile = 'default'
+        self.profile = profile
 
     def _connect(self):
         try:
