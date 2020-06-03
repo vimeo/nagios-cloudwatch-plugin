@@ -78,6 +78,11 @@ For information on how CloudWatch stores metrics check this `doc <http://docs.aw
 
 Releases
 ========
+
+0.2.8 - June 03, 2020: Bugfix: An error was thrown when using the --profile argument with --ratio mode. Thanks thewizarodofoz!
+
+0.2.7 - May 01, 2018: Added option to specify AWS credential profile. Thanks l13t!
+
 0.2.6 - Oct 23, 2014: Updated Readme example, fixed typoes. Thanks sampierson !
 
 0.2.5 - Sep 09, 2014: Support passing region as an argument, defaulting to boto default. Thanks grahamlyons!
